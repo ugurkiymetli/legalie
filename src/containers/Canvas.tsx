@@ -17,23 +17,44 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
   const lastY = useRef<number | null>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    startDrawing(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDrawing) return;
+    draw(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+  };
+
+  const handleMouseUp = () => {
+    setIsDrawing(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    startDrawing(touch.clientX, touch.clientY);
+    e.preventDefault(); // Prevent scrolling or other default touch behaviors
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDrawing) return;
+    const touch = e.touches[0];
+    draw(touch.clientX, touch.clientY);
+    e.preventDefault(); // Prevent scrolling or other default touch behaviors
+  };
+
+  const startDrawing = (x: number, y: number) => {
     setIsDrawing(true);
     const canvas = canvasRef.current!;
     const context = canvas.getContext('2d')!;
-    [lastX.current, lastY.current] = [
-      e.nativeEvent.offsetX,
-      e.nativeEvent.offsetY,
-    ];
+    [lastX.current, lastY.current] = [x, y];
     context.strokeStyle = 'black';
     context.lineWidth = 2;
     context.lineCap = 'round';
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDrawing) return;
+  const draw = (x: number, y: number) => {
     const canvas = canvasRef.current!;
     const context = canvas.getContext('2d')!;
-    const [x, y] = [e.nativeEvent.offsetX, e.nativeEvent.offsetY];
     context.beginPath();
     context.moveTo(lastX.current!, lastY.current!);
     context.lineTo(x, y);
@@ -41,15 +62,12 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
     [lastX.current, lastY.current] = [x, y];
   };
 
-  const handleMouseUp = () => {
-    setIsDrawing(false);
-  };
-
   const handleSave = () => {
     const canvas = canvasRef.current!;
     const dataURL = canvas.toDataURL('image/png');
     console.log({ dataURL });
     onSave(dataURL);
+    alert('signature saved!');
   };
 
   const handleClear = () => {
@@ -78,6 +96,8 @@ const SignatureCanvas: React.FC<SignatureCanvasProps> = ({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
       />
       <div>
         <button onClick={handleSave} className="btn btn-primary mt-2">
