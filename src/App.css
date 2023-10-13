@@ -62,3 +62,10 @@ p.text-success {
 .disabled-text {
   opacity: 0.6;
 }
+
+.signature-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}

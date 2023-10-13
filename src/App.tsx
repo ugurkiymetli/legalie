@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import './App.css';
+import SignatureCanvas from './containers/Canvas';
 
 function App() {
   const [checked, setChecked] = useState(false);
   const [submitted, setSubmitted] = useState(
     localStorage.getItem('legalConfirmation') === 'true'
   );
+  const [signature, setSignature] = useState<string | null>(null); // Specify the type as string | null
+
   const handleConfirmation = () => {
     if (!submitted) {
       setChecked(!checked);
@@ -24,6 +27,15 @@ function App() {
     setSubmitted(false);
     setChecked(false);
   };
+
+  const handleClearSignature = () => {
+    setSignature(null);
+  };
+
+  const handleSaveSignature = (dataURL: string) => {
+    setSignature(dataURL);
+  };
+
   return (
     <div className="App">
       <div className="container">
@@ -88,6 +100,12 @@ function App() {
         >
           {!submitted ? 'Confirm' : 'Submitted'}
         </button>
+        <div className="signature-container mt-3">
+          <SignatureCanvas
+            onSave={handleSaveSignature}
+            onClear={handleClearSignature}
+          />
+        </div>
         {submitted ? (
           <button onClick={handleReset} className="btn mt-3 reset-button">
             <i className="fas fa-undo"></i>
